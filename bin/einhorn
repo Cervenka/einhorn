@@ -325,6 +325,13 @@ if true # $0 == __FILE__
       Einhorn::State.config[:gc_before_fork] = true
     end
 
+    opts.on('--graceful-signal SIGNAL', 'Specify the signal to use for graceful shutdown (default: USR2)') do |signal|
+      unless Signal.list.key?(signal.upcase)
+        raise ArgumentError, "Invalid signal #{signal.inspect}. Valid signals are: #{Signal.list.keys.join(', ')}"
+      end
+      Einhorn::State.config[:graceful_signal] = signal.upcase
+    end
+
     opts.on('--version', 'Show version') do
       puts Einhorn::VERSION
       exit

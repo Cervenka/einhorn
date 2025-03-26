@@ -472,14 +472,14 @@ module Einhorn
       Einhorn.log_debug("#{acked} acked, #{unsignaled} unsignaled, #{target} target, #{old_workers.length} old workers")
       if !Einhorn::State.upgrading && old_workers.length > 0
         Einhorn.log_info("Killing off #{old_workers.length} old workers.", :upgrade)
-        signal_all("USR2", old_workers)
+        signal_all(Einhorn::State.config[:graceful_signal] || 'USR2', old_workers)
       elsif Einhorn::State.upgrading && Einhorn::State.smooth_upgrade
         # In a smooth upgrade, kill off old workers one by one when we have
         # sufficiently many new workers.
         excess = (old_workers.length + acked) - target
         if excess > 0
           Einhorn.log_info("Smooth upgrade: killing off #{excess} old workers.", :upgrade)
-          signal_all("USR2", old_workers.take(excess))
+          signal_all(Einhorn::State.config[:graceful_signal] || 'USR2', old_workers.take(excess))
         else
           Einhorn.log_debug("Not killing old workers, as excess is #{excess}.")
         end
